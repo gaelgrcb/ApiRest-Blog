@@ -1,115 +1,124 @@
+// Importamos las dependencias necesarias
 const validator = require('validator');
 const Articulo = require("../models/Articulo");
 
-const prueba = (req, res) => {
+// Controlador para pruebas
+const pruebaDeControlador = (req, res) => {
     return res.status(200).json({
         mensaje: "Soy una acción de prueba en mi controlador de artículos"
     });
-}
+};
 
-const curso = (req, res) => {
+// Controlador para la ruta del curso
+const rutaDelCurso = (req, res) => {
     return res.status(200).json({
         mensaje: "Estoy en la ruta del curso"
     });
-}
+};
 
-// Convertimos la función 'crear' en asincrónica para usar 'await'
-const crear = async (req, res) => {
-    // Recoger parámetros por POST para guardar
-    let parametros = req.body;
+// Controlador para crear un nuevo artículo
+const crearArticulo = async (req, res) => {
+    // Recogemos los parámetros enviados por POST
+    const parametros = req.body;
 
-    // Validar los datos
+    // Validamos los datos enviados
     try {
-        let validar_titulo = !validator.isEmpty(parametros.titulo) && validator.isLength(parametros.titulo, { min: 0, max: undefined });
-        let validar_contenido = !validator.isEmpty(parametros.contenido);
+        // Validamos que el título no esté vacío y tenga al menos 1 caracter
+        const validarTitulo = !validator.isEmpty(parametros.titulo);
+        // Validamos que el contenido no esté vacío
+        const validarContenido = !validator.isEmpty(parametros.contenido);
 
-        if (!validar_titulo || !validar_contenido) {
-            throw new Error("Datos inválidos"); // Lanzamos un error si los datos no son válidos
+        // Si alguna validación falla, lanzamos un error
+        if (!validarTitulo || !validarContenido) {
+            throw new Error("Datos inválidos");
         }
     } catch (error) {
-        // Capturamos cualquier error de validación
+        // Si ocurre un error en la validación, enviamos una respuesta de error
         return res.status(400).json({
             status: "error",
             mensaje: "Faltan datos por enviar"
         });
     }
 
-    // Crear el objeto a guardar (Mongoose crea automáticamente el objeto basado en el modelo)
+    // Creamos un nuevo artículo usando los parámetros recibidos
     const articulo = new Articulo(parametros);
 
     try {
-        // Guardar el artículo en la base de datos
-        // Esperamos a que la promesa se resuelva con 'await'
+        // Guardamos el artículo en la base de datos
         const articuloGuardado = await articulo.save();
 
-        // Enviamos un mensaje de éxito si el artículo se guarda correctamente
+        // Si el guardado es exitoso, enviamos la respuesta con el artículo guardado
         return res.status(200).json({
             status: "success",
             mensaje: "Artículo guardado correctamente",
             articulo: articuloGuardado
         });
     } catch (error) {
-        // Si ocurre un error al guardar, lo capturamos aquí
-        return res.status(400).json({
+        // Si ocurre un error al guardar, enviamos una respuesta de error
+        return res.status(500).json({
             status: "error",
             mensaje: "Error al guardar el artículo"
         });
     }
-}
+};
 
-
-//Pedir listar los articulos de la base de datos
-const listar= (req, res) => {
-    
-    Articulo.find({}) //Find ayuda a buscar los datos en la base de datos
-        .sort({ fecha: -1 }) // Ordenamos los artículos por fecha del mas nuevo al mas viejo
+// Controlador para listar todos los artículos
+const listarArticulos = (req, res) => {
+    // Buscamos todos los artículos en la base de datos
+    Articulo.find({})
+        .sort({ fecha: -1 }) // Ordenamos los artículos por fecha de forma descendente
         .then(articulos => {
+            // Si la búsqueda es exitosa, enviamos la respuesta con la lista de artículos
             return res.status(200).json({
-                cantidad: articulos.length ,
-                status:"success",
+                cantidad: articulos.length,
+                status: "success",
                 articulos: articulos
-            })
+            });
         })
-
         .catch(error => {
+            // Si ocurre un error en la búsqueda, enviamos una respuesta de error
             return res.status(404).json({
                 status: "error",
-                mensaje: "No se pudo encontar la lista de articulos"
-            })
-        })
+                mensaje: "No se pudo encontrar la lista de artículos"
+            });
+        });
+};
 
-}
-
-//Listar por id
-
-    const uno = (req, res) => {
+// Controlador para listar un artículo por su ID
+const obtenerArticuloPorId = (req, res) => {
+    // Extraemos el ID de los parámetros de la URL
     const id = req.params.id;
 
+    // Buscamos el artículo por su ID en la base de datos
     Articulo.findById(id)
-       .then(articulo => {
+        .then(articulo => {
             if (!articulo) {
+                // Si no se encuentra el artículo, enviamos una respuesta de error
                 return res.status(404).json({
                     status: "error",
-                    mensaje: "No se pudo encontrar el articulo con el id: " + id
+                    mensaje: `No se pudo encontrar el artículo con el ID: ${id}`
                 });
             }
+            // Si el artículo es encontrado, enviamos la respuesta con el artículo
             return res.status(200).json({
                 status: "success",
                 articulo: articulo
             });
         })
-       .catch(error => {
+        .catch(error => {
+            // Si ocurre un error en la búsqueda, enviamos una respuesta de error
             return res.status(500).json({
                 status: "error",
-                mensaje: "Error al buscar el articulo con el id: " + id
+                mensaje: `Error al buscar el artículo con el ID: ${id}`
             });
         });
-}
+};
 
+// Exportamos los controladores para que puedan ser usados en otras partes de la aplicación
 module.exports = {
-    prueba,
-    curso,
-    crear,
-    listar,
-    uno,
-}
+    pruebaDeControlador,
+    rutaDelCurso,
+    crearArticulo,
+    listarArticulos,
+    obtenerArticuloPorId,
+};

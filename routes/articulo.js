@@ -4,12 +4,12 @@ const router = express.Router();
 const ArticuloControlador = require("../controllers/articulo");
 
 //rutas de prueba
-router.get('/ruta-prueba', ArticuloControlador.prueba);
-router.get('/curso', ArticuloControlador.curso);
+router.get('/ruta-prueba', ArticuloControlador.pruebaDeControlador);
+router.get('/curso', ArticuloControlador.rutaDelCurso);
 
 //ruta para articulos
-router.post('/crear', ArticuloControlador.crear);
-router.get('/listar',ArticuloControlador.listar);
-router.get('/listar/:id', ArticuloControlador.uno);
+router.post('/crear', ArticuloControlador.crearArticulo);
+router.get('/listar',ArticuloControlador.listarArticulos);
+router.get('/listar/:id', ArticuloControlador.obtenerArticuloPorId);
 
 module.exports = router;
