@@ -11,5 +11,6 @@ router.get('/curso', ArticuloControlador.rutaDelCurso);
 router.post('/crear', ArticuloControlador.crearArticulo);
 router.get('/listar',ArticuloControlador.listarArticulos);
 router.get('/listar/:id', ArticuloControlador.obtenerArticuloPorId);
+router.delete('/listar/:id', ArticuloControlador.eliminarArticuloPorId);
 
 module.exports = router;

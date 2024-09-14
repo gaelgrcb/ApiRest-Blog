@@ -114,6 +114,39 @@ const obtenerArticuloPorId = (req, res) => {
         });
 };
 
+//Controlador para eliminar articulo por ID
+const eliminarArticuloPorId = (req, res) => {
+    // Extraemos el id de los parametros de la url
+    const id = req.params.id;
+
+    // Buscamos el articulo por su ID en la base de datos y lo eliminamos
+    Articulo.findByIdAndDelete(id)
+    .then(articuloID => {
+        if (!articuloID) {
+            // Si no se encuentra el articulo, devolvemos un error 404
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se pudo encontrar el articulo"
+            });
+        }
+        // Si encontramos y eliminamos el articulo, enviamos un mensaje de éxito
+        return res.status(200).json({
+            status: "success",
+            mensaje: "Articulo eliminado exitosamente",
+            articulo: articuloID
+        });
+    })
+    .catch(error => {
+        // Si ocurre un error al buscar o eliminar, enviamos una respuesta de error
+        return res.status(400).json({
+            status: "error",
+            mensaje: "Error al buscar o eliminar el articulo",
+            error: error.message
+        });
+    });
+};
+
+
 // Exportamos los controladores para que puedan ser usados en otras partes de la aplicación
 module.exports = {
     pruebaDeControlador,
@@ -121,4 +154,5 @@ module.exports = {
     crearArticulo,
     listarArticulos,
     obtenerArticuloPorId,
+    eliminarArticuloPorId,
 };
